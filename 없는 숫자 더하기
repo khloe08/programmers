@@ -1,0 +1,41 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
+
+public class Solution {
+	
+		
+	
+		public int solution(int[] numbers) {
+			int answer =0;
+			int[] boxes = {0,1,2,3,4,5,6,7,8,9};
+			
+			for (int num: numbers) {
+				for (int i=0; i < boxes.length; i++) {
+					if(num == boxes[i]) {
+						boxes = removeElement(boxes, i);
+					}
+				}		
+			}
+			for(int box : boxes) {
+				answer += box;
+			}
+			System.out.println(answer);
+				return answer;
+			}
+			
+			public static int[] removeElement(int[] arr, int index) {
+				int[] result = new int[arr.length - 1];
+				if(index == 0) {
+					System.arraycopy(arr, 1, result, 0, result.length);
+				}
+				System.arraycopy(arr, 0, result, 0, index);
+				if (arr.length != index) {
+				System.arraycopy(arr, index + 1, result, index, arr.length - index - 1);
+					 }
+				return result;
+		}
+		
+			
+		}	
