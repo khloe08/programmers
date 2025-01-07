@@ -1,0 +1,49 @@
+class Solution {
+    public String[] solution(String[] orders, int[] course) {
+        String[] answer = {};
+        
+        HashMap<String,Integer> orderMap = new HashMap<String,Integer>();
+        List<Integer> courseList = new ArrayList<>();
+        for(int a=0; a < course.length; a++){
+            String co = course[a];
+            courseList.add(co);
+        }
+
+     
+        //글자 갯수 해시화
+        for(int i=0; i < orders.length; i++){
+            String order = orders[i];
+            int len = order.length();
+        
+            orderList.put(order,len);
+                
+        }
+        
+        //필요없는 경우의 수 지우기
+        //courseList 중 Max인 수가 orderList value에 없거나 한개인 경우
+        int maxNum = course[course.length -1];
+        
+        if(orderList.entrySet().stream().anyMatch(entry -> entry.getValue() != maxNum)){
+            
+        }
+        
+        
+        //courseList 돌려서 orders에 2개이상인 메뉴 확인
+        for(int j : courseList){
+           //j와 동일한 value의 key값 찾기
+            List<String> keyList = new ArrayList<>();
+            for(Map.Entry<String,Integer> entry : orderList){
+                if(entry.getValue() == j){
+                    keyList.add(entry.getKey());
+                }
+            }
+             // for문으로 value > j 인 값 중 key포함하는 
+            if(orderList.entrySet().get)
+            
+        }
+        
+        //answer에 넣기
+        
+        return answer;
+    }
+}
