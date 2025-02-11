@@ -1,0 +1,149 @@
+import java.util.*;
+
+class Solution {
+    static int width, height, total;
+    static int[][] dr = { {-1,0}, {1,0}, {0,-1}, {0,1} }; // 상, 하, 좌, 우 이동
+    static char[][] charMatrix;
+
+    static class Point {
+        int row, col;
+        Point(int r, int c) {
+            this.row = r;
+            this.col = c;
+        }
+    }
+
+    public int solution(String[] storage, String[] requests) {
+        height = storage.length;
+        width = storage[0].length();
+        total = height * width;
+        charMatrix = convertToCharMatrix(storage);
+
+        for (int r = 0; r < requests.length; r++) {
+            char request = requests[r].charAt(0);
+            
+  boolean[][] visited = new boolean[height][width];
+
+            if (requests[r].length() == 1) {  // 지게차 (외부 연결된 블록만 제거)
+                for (int i = 0; i < height; i++) {
+                    for (int j = 0; j < width; j++) {
+                        if (charMatrix[i][j] == request) {
+                            if (certificateOut(i, j)) {
+                                charMatrix[i][j] = (char)('.' + r);
+                                total--;
+                            }else if (bfs(i, j, r)) {
+                                charMatrix[i][j] =  (char)('.' + r);
+                                total--;
+                            }
+                        }
+                    }
+                }
+            } else {  // 크레인 (해당 문자를 전체에서 제거)
+                for (int i = 0; i < height; i++) {
+                    for (int j = 0; j < width; j++) {
+                        if (charMatrix[i][j] == request) {
+                            charMatrix[i][j] = '.';
+                            total--;
+                        }
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+    public static boolean certificateOut(int i, int j) {
+        return (i == 0 || i == height - 1 || j == 0 || j == width - 1);
+    }
+
+    public boolean bfs(int row, int col , int r) {
+        boolean[][] visited = new boolean[height][width];
+        Queue<Point> myqueue = new LinkedList<>();
+        visited[row][col] = true;
+        myqueue.add(new Point(row, col));
+
+        while (!myqueue.isEmpty()) {
+            Point curr = myqueue.remove();
+
+            for (int d = 0; d < 4; d++) {
+                int nr = curr.row + dr[d][0];
+                int nc = curr.col + dr[d][1];
+
+                if (nr < 0 || nr >= height || nc < 0 || nc >= width) continue;
+                if (visited[nr][nc]) continue;
+                if (charMatrix[nr][nc] != '.') continue;
+
+                visited[nr][nc] = true;
+
+                if (certificateOut(nr, nc)) {
+                    if(charMatrix[nr][nc]== (char)('.' + r)){
+                        continue;
+                    }
+                    return true;
+                }
+
+                myqueue.add(new Point(nr, nc));
+            }
+        }
+        return false;
+    }
+
+    public static char[][] convertToCharMatrix(String[] strArray) {
+        int rows = strArray.length;
+        int cols = strArray[0].length();
+        char[][] matrix = new char[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            matrix[i] = strArray[i].toCharArray();
+        }
+        return matrix;
+    }
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+        String[] storage = {"HAH", "HBH", "HHH", "HAH", "HBH"};
+        String[] requests = {"C", "B", "B", "B", "B", "H"};
+        int result = sol.solution(storage, requests);
+        System.out.println("남은 컨테이너 개수: " + result);
+    }
+}
+
+
+
+문제점 분석 및 수정해야 할 부분>>
+
+certificateOut(i, j) 검증 로직 문제
+
+이 함수는 단순히 창고의 경계에 있는지 확인하는데, 지게차가 접근할 수 있는 컨테이너를 판단하기에는 부족합니다.
+창고 외부와 연결된 컨테이너는 단순히 가장자리뿐만 아니라, .(비어있는 공간)과 인접해야 합니다.
+지게차 출고 요청(requests[i] 길이 1인 경우)의 동작 오류
+
+현재 certificateOut(i, j)만으로 접근 가능한지 판단하고 있지만, 내부에서도 외부와 연결된 공간을 찾아야 합니다.
+따라서 BFS(너비 우선 탐색)로 외부 공간(.)과 연결된 블록을 찾도록 수정해야 합니다.
+크레인(requests[i] 길이 2인 경우)의 동작 문제
+
+크레인이 해당 문자 전체를 제거하는데, 일부 블록이 남아있을 가능성이 있습니다.
+현재 로직은 모든 문자를 탐색하고 제거하지만, 불필요한 반복이 있을 수 있습니다.
+잘못된 charMatrix 업데이트 방식
+
+charMatrix[i][j] = (char)('.' + r);
+→ 이 부분은 charMatrix[i][j] = '.';로 수정해야 합니다. . 문자는 빈 공간을 나타내므로 따로 조작할 필요가 없습니다.
+BFS 동작 개선
+
+bfs(i, j, r) 함수에서 charMatrix[nr][nc] != '.'인 경우를 잘못 처리하여 특정 블록을 방문할 수 없게 만듭니다.
+BFS는 내부에서 벽을 만나지 않으면서 외부와 연결될 수 있는지를 확인해야 합니다.
+
+변경 사항 및 개선점
+지게차 출고 요청 시 BFS 기반 접근 방식 개선
+
+isAccessible(i, j) 함수는 BFS를 사용하여 해당 위치가 창고 외부와 연결되었는지 확인합니다.
+즉, 창고 바깥쪽 공간과 연결된 .을 따라가면서 연결성을 판단합니다.
+크레인 출고 요청 시 불필요한 로직 제거
+
+크레인은 해당 문자를 전체 제거하므로 단순히 charMatrix[i][j] == target인 곳을 .로 바꿉니다.
+BFS 로직에서 방문 처리 오류 수정
+
+방문 처리 로직을 올바르게 적용하여 중복 방문을 방지했습니다.
+certificateOut(i, j) 삭제
+
+이 함수는 단순히 테두리만 확인하기 때문에 isAccessible(i, j) 함수로 대체되었습니다.
