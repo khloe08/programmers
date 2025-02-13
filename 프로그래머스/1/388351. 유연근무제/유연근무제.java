@@ -4,14 +4,9 @@ class Solution {
 
         for (int a = 0; a < schedules.length; a++) {
             // 출근 희망 시각 계산 (+10분 증가)
-           // int last = (schedules[a] + 10) % 100;
             Times hopeTime;
-
-          //  if (last > 59) {
-                hopeTime = seperateTime(schedules[a] ,10);
-          //  } else {
-          //      hopeTime = seperateTime(schedules[a] + 10);
-          //  }
+             hopeTime = seperateTime(schedules[a] ,10);
+         
               boolean allTimeOn = true;
             // 일주일간 출근 기록을 확인
             for (int b = 0; b < timelogs[a].length; b++) {
